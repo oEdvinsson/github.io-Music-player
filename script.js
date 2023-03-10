@@ -2,6 +2,10 @@ const image = document.querySelector('img');
 const title = document.getElementById('title');
 const artist = document.getElementById('artist');
 const music = document.querySelector('audio');
+const progressContainer = document.getElementById('progress-container');
+const progress = document.getElementById('progress');
+const currentTimeEl = document.getElementById('current-time');
+const durationEl = document.getElementById('duration');
 const prevBtn = document.getElementById('prev');
 const playBtn = document.getElementById('play');
 const nextBtn = document.getElementById('next');
@@ -20,12 +24,12 @@ const songs = [
     },
     {
         name: 'jacinto-3',
-        displayName: 'Song3',
+        displayName: 'Goodnight, Disco Queen',
         artist: 'Jacinto Design',
     },
     {
         name: 'metric-1',
-        displayName: 'Song4',
+        displayName: 'Front Row (Remix)',
         artist: 'Jacinto Design',
     }
 ]
@@ -66,7 +70,9 @@ let songIndex = 0;
 // Previous Song
 function prevSong() {
     songIndex--;
-    console.log(songIndex);
+    if (songIndex < 0) {
+        songIndex = songs.length -1;
+    }
     loadSong(songs[songIndex]);
     playSong();
 }
@@ -74,7 +80,9 @@ function prevSong() {
 // Next Song
 function nextSong() {
     songIndex++;
-    console.log(songIndex);
+    if (songIndex > songs.length -1) {
+        songIndex = 0;
+    }
     loadSong(songs[songIndex]);
     playSong();
 }
@@ -82,6 +90,26 @@ function nextSong() {
 // On Load - Select First Song
 loadSong(songs[songIndex]);
 
+// Update Progress Bar & Time
+function updateProgressBar(e) {
+    if (isPlaying) {
+        const { duration, currentTime } = e.srcElement;
+        // Update progress bar width
+        const progressPercent = (currentTime / duration) * 100;
+        progress.style.width = `${progressPercent}%`;
+        // Calculate display for duration
+        const durationMinutes = Math.floor(duration / 60);
+        console.log('minutes', durationMinutes);
+        let durationSeconds = Math.floor(duration % 60);
+        if (durationSeconds < 10 ) {
+            durationSeconds = `0${durationSeconds}`;
+        }
+        console.log('seconds', durationSeconds);
+        durationEl.textContent = `${durationMinutes}:${durationSeconds}`;
+    }
+}
+
 // Event Listeners
 prevBtn.addEventListener('click', prevSong);
 nextBtn.addEventListener('click', nextSong);
+music.addEventListener('timeupdate', updateProgressBar);
